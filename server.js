@@ -35,7 +35,7 @@ var newsItems = [];
 db.open("news.db", function (error) {
   var sql = 'SELECT * FROM news';
   db.execute(sql, function (error, rows) {
-    newItems = rows;
+    newsItems = rows;
   });
 });
 
