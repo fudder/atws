@@ -1,5 +1,8 @@
-var express = require('express');
+var sys     = require('sys'),
+    sqlite  = require('sqlite'),
+    express = require('express');
 
+var db = new sqlite.Database();
 var app = express.createServer();
 
 // Ad-hoc example resource method
@@ -27,11 +30,14 @@ var users = [
   , { name: 'tobi' }
 ];
 
-var newsItems = [
-    { id: 1, title: 'Test News 1', body: 'More testing testing 123', posted: '4/6/2011 4:35 PM' }
-  , { id: 2, title: 'Testleage 2', body: 'Yet more testing of a mundane nature', posted: '4/6/2011 4:37 PM' }
-  , { id: 3, title: 'Testorama 3', body: 'YATNI... yes, yet another test news item', posted: '4/6/2011 4:45 PM' }
-];
+var newsItems = [];
+
+db.open("news.db", function (error) {
+  var sql = 'SELECT * FROM news';
+  db.execute(sql, function (error, rows) {
+    newItems = rows;
+  });
+});
 
 // Fake controllers
 
