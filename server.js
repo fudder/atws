@@ -16,6 +16,7 @@ app.resource = function(path, obj) {
     obj.range(req, res, a, b, format);
   });
   this.get(path + '/:id', obj.show);
+//disabling ability to delete
 //this.del(path + '/:id', obj.destroy);
 };
 
@@ -30,8 +31,17 @@ db.open("news.db", function (error) {
   });
 });
 
-// Controllers
+var posts = [];
 
+db.open("news.db", function (error) {
+  var sql = 'SELECT * FROM posts';
+  db.execute(sql, function (error, rows) {
+    posts = rows;
+    console.log(rows.length + ' posts loaded from db.');
+  });
+});
+
+// Controllers
 var News = {
   index: function(req, res){
     res.send(newsItems);
@@ -61,13 +71,44 @@ var News = {
     }
   }
 };
+var Posts = {
+  index: function(req, res){
+    res.send(Posts);
+  },
+  show: function(req, res){
+    res.send(Posts[req.params.id] || { error: 'Cannot find post' });
+  },
+  destroy: function(req, res){
+    var id = req.params.id;
+    var destroyed = id in Posts;
+    delete Posts[id];
+    res.send(destroyed ? 'destroyed' : 'Cannot find post');
+  },
+  range: function(req, res, a, b, format){
+    var range = Posts.slice(a, b + 1);
+    switch (format) {
+      case 'json':
+        res.send(range);
+        break;
+      case 'html':
+      default:
+        var html = '<ul>' + range.map(function(Posts){
+          return '<li>' + Posts.title + '</li>';
+        }).join('\n') + '</ul>';
+        res.send(html);
+        break;
+    }
+  }
+};
 
 app.resource('/news', News);
+app.resource('/posts', Posts);
 
 app.get('/', function(req, res){
   res.send([
       '<h1>Services:</h1> <ul>'
-    , '<li>GET /news</li>'
+    , '<li>GET <a href="news">/news</a></li>'
+    , '<li>GET <a href="posts">/posts</a></li>'
     , '</ul>'
   ].join('\n')); 
 });
