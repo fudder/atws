@@ -71,29 +71,30 @@ var News = {
     }
   }
 };
+
 var Posts = {
   index: function(req, res){
-    res.send(Posts);
+    res.send(posts);
   },
   show: function(req, res){
-    res.send(Posts[req.params.id] || { error: 'Cannot find post' });
+    res.send(posts[req.params.id] || { error: 'Cannot find post' });
   },
   destroy: function(req, res){
     var id = req.params.id;
-    var destroyed = id in Posts;
-    delete Posts[id];
+    var destroyed = id in posts;
+    delete posts[id];
     res.send(destroyed ? 'destroyed' : 'Cannot find post');
   },
   range: function(req, res, a, b, format){
-    var range = Posts.slice(a, b + 1);
+    var range = posts.slice(a, b + 1);
     switch (format) {
       case 'json':
         res.send(range);
         break;
       case 'html':
       default:
-        var html = '<ul>' + range.map(function(Posts){
-          return '<li>' + Posts.title + '</li>';
+        var html = '<ul>' + range.map(function(posts){
+          return '<li>' + posts.title + '</li>';
         }).join('\n') + '</ul>';
         res.send(html);
         break;
