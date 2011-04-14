@@ -42,24 +42,28 @@ db.open("news.db", function (error) {
 });
 
 // Controllers
+function jpWrap(content) {
+	return "atApi(" + content + ");";
+}
+
 var News = {
   index: function(req, res){
-    res.send(newsItems);
+    res.send(jpWrap(newsItems));
   },
   show: function(req, res){
-    res.send(newsItems[req.params.id] || { error: 'Cannot find news item' });
+    res.send(jpWrap(newsItems[req.params.id] || { error: 'Cannot find news item' }));
   },
   destroy: function(req, res){
     var id = req.params.id;
     var destroyed = id in newsItems;
     delete newsItems[id];
-    res.send(destroyed ? 'destroyed' : 'Cannot find news item');
+    res.send(jpWrap(destroyed ? 'destroyed' : 'Cannot find news item'));
   },
   range: function(req, res, a, b, format){
     var range = newsItems.slice(a, b + 1);
     switch (format) {
       case 'json':
-        res.send(range);
+        res.send(jpWrap(range));
         break;
       case 'html':
       default:
@@ -74,22 +78,22 @@ var News = {
 
 var Posts = {
   index: function(req, res){
-    res.send(posts);
+    res.send(jpWrap(posts));
   },
   show: function(req, res){
-    res.send(posts[req.params.id] || { error: 'Cannot find post' });
+    res.send(jpWrap(posts[req.params.id] || { error: 'Cannot find post' }));
   },
   destroy: function(req, res){
     var id = req.params.id;
     var destroyed = id in posts;
     delete posts[id];
-    res.send(destroyed ? 'destroyed' : 'Cannot find post');
+    res.send(jpWrap(destroyed ? 'destroyed' : 'Cannot find post'));
   },
   range: function(req, res, a, b, format){
     var range = posts.slice(a, b + 1);
     switch (format) {
       case 'json':
-        res.send(range);
+        res.send(jpWrap(range));
         break;
       case 'html':
       default:
