@@ -6,7 +6,6 @@ var db = new sqlite.Database();
 var app = express.createServer();
 
 // Ad-hoc example resource method
-
 app.resource = function(path, obj) {
   this.get(path, obj.index);
   this.get(path + '/:a..:b.:format?', function(req, res){
@@ -19,6 +18,8 @@ app.resource = function(path, obj) {
 //disabling ability to delete
 //this.del(path + '/:id', obj.destroy);
 };
+
+app.enable('jsonp callback');
 
 // Data
 var newsItems = [];
@@ -42,28 +43,24 @@ db.open("news.db", function (error) {
 });
 
 // Controllers
-function jpWrap(content) {
-	return "atApi(" + content + ");";
-}
-
 var News = {
   index: function(req, res){
-    res.send(jpWrap(newsItems));
+    res.send(newsItems);
   },
   show: function(req, res){
-    res.send(jpWrap(newsItems[req.params.id] || { error: 'Cannot find news item' }));
+    res.send(newsItems[req.params.id] || { error: 'Cannot find news item' });
   },
   destroy: function(req, res){
     var id = req.params.id;
     var destroyed = id in newsItems;
     delete newsItems[id];
-    res.send(jpWrap(destroyed ? 'destroyed' : 'Cannot find news item'));
+    res.send(destroyed ? 'destroyed' : 'Cannot find news item');
   },
   range: function(req, res, a, b, format){
     var range = newsItems.slice(a, b + 1);
     switch (format) {
       case 'json':
-        res.send(jpWrap(range));
+        res.send(range);
         break;
       case 'html':
       default:
@@ -78,22 +75,22 @@ var News = {
 
 var Posts = {
   index: function(req, res){
-    res.send(jpWrap(posts));
+    res.send(posts);
   },
   show: function(req, res){
-    res.send(jpWrap(posts[req.params.id] || { error: 'Cannot find post' }));
+    res.send(posts[req.params.id] || { error: 'Cannot find post' });
   },
   destroy: function(req, res){
     var id = req.params.id;
     var destroyed = id in posts;
     delete posts[id];
-    res.send(jpWrap(destroyed ? 'destroyed' : 'Cannot find post'));
+    res.send(destroyed ? 'destroyed' : 'Cannot find post');
   },
   range: function(req, res, a, b, format){
     var range = posts.slice(a, b + 1);
     switch (format) {
       case 'json':
-        res.send(jpWrap(range));
+        res.send(range);
         break;
       case 'html':
       default:
