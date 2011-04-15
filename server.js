@@ -42,6 +42,18 @@ db.open("news.db", function (error) {
   });
 });
 
+// Data
+var highlights = [];
+
+db.open("news.db", function (error) {
+  var sql = 'SELECT * FROM highlights ORDER BY sortOrder';
+  db.execute(sql, function (error, rows) {
+    highlights = rows;
+    console.log(rows.length + ' highlights loaded from db.');
+  });
+});
+
+
 // Controllers
 var News = {
   index: function(req, res){
@@ -103,14 +115,46 @@ var Posts = {
   }
 };
 
+var HLs = {
+  index: function(req, res){
+    res.send(highlights);
+  },
+  show: function(req, res){
+    res.send(highlights[req.params.id] || { error: 'Cannot find highlight' });
+  },
+  destroy: function(req, res){
+    var id = req.params.id;
+    var destroyed = id in highlights;
+    delete highlights[id];
+    res.send(destroyed ? 'destroyed' : 'Cannot find highlight');
+  },
+  range: function(req, res, a, b, format){
+    var range = highlights.slice(a, b + 1);
+    switch (format) {
+      case 'json':
+        res.send(range);
+        break;
+      case 'html':
+      default:
+        var html = '<ul>' + range.map(function(highlights){
+          return '<li>' + posts.title + '</li>';
+        }).join('\n') + '</ul>';
+        res.send(html);
+        break;
+    }
+  }
+};
+
 app.resource('/news', News);
 app.resource('/posts', Posts);
+app.resource('/hls', HLs);
 
 app.get('/', function(req, res){
   res.send([
       '<h1>Services:</h1> <ul>'
     , '<li>GET <a href="news">/news</a></li>'
     , '<li>GET <a href="posts">/posts</a></li>'
+    , '<li>GET <a href="hls">/hls</a></li>'
     , '</ul>'
   ].join('\n')); 
 });
